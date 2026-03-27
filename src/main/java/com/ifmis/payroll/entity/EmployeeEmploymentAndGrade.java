@@ -24,10 +24,11 @@ public class EmployeeEmploymentAndGrade{
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_code", nullable = false, unique = true)
-    private EmployeePersonalInformation employee;
+    private Employee employee;
 
     // Employment Type
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EmploymentType employmentType;
 
     // Position / Designation
@@ -50,4 +51,5 @@ public class EmployeeEmploymentAndGrade{
     // Step: calculated
     @Column(name="step", length = 3)
     private Integer step;
+
 }

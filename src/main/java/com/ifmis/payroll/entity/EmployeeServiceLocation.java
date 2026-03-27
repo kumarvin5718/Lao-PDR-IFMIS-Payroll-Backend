@@ -19,16 +19,16 @@ public class EmployeeServiceLocation {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-//    need attention***
+    //    need attention***
     @Column(name = "service_province")
     private String serviceProvince;
 
-//    need attention***
+    //    need attention***
     @Column(name = "service_district")
     private String serviceDistrict;
 
-//    need attention***
-    private String ProfessionCategory;
+    //    need attention***
+    private String professionCategory;
 
     @Column(name = "is_remote_area")
     private Boolean isRemoteArea;
@@ -39,4 +39,8 @@ public class EmployeeServiceLocation {
     @Column(name = "is_hazardous_area")
     private Boolean isHazardousArea;
 
+    // relation
+    @OneToOne
+    @JoinColumn(name = "employee_code", nullable = false, unique = true)
+    private Employee employee;
 }

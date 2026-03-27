@@ -18,7 +18,7 @@ import lombok.Setter;
 public class Department {
     @Id
     @Column(name = "dept_key", unique = true, nullable = false, updatable = false)
-    private String ministryKey;
+    private String departmentKey;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;

@@ -1,6 +1,5 @@
 package com.ifmis.payroll.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,4 +20,14 @@ public class EmployeePayrollFlags {
     private Boolean hasSpouse;
 
     private Integer noOfEligibleChildren;
+
+    private String positionLevel;
+
+    private Boolean isNAMember;
+
+    private String fieldAllowanceType;
+
+    @OneToOne
+    @JoinColumn(name = "employee_code", nullable = false, unique = true)
+    private Employee employee;
 }
