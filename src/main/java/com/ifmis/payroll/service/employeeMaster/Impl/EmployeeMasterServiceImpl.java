@@ -37,7 +37,7 @@ public class EmployeeMasterServiceImpl implements EmployeeMasterService {
                     request.getTitle().replace(".", "").trim().toUpperCase()
             );
         } catch (Exception e) {
-            title = Title.MR; // default
+            title = Title.MR;
         }
 
         //  Gender parse
@@ -48,7 +48,7 @@ public class EmployeeMasterServiceImpl implements EmployeeMasterService {
             throw new IllegalArgumentException("Invalid gender: " + request.getGender());
         }
 
-        //  Date Formatter (IMPORTANT )
+        //  Date Formatter
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         LocalDate dob;
@@ -85,7 +85,6 @@ public class EmployeeMasterServiceImpl implements EmployeeMasterService {
 
         EmployeePersonalInformation saved = employeeMasterRepository.save(entity);
 
-        // Response Formatter (output nice format)
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
         return EmployeeResponseDto.builder()

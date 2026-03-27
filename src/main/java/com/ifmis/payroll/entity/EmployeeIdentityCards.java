@@ -29,6 +29,6 @@ public class EmployeeIdentityCards{
     private String civilServiceCardId;
 
     // Social Security No: 12 Char alphanumeric
-    @Column(name = "civil_service_card_id", length = 16, nullable = false)
-    private String social_security_number;
+    @Column(name = "social_security_number", length = 16, nullable = false, unique = true)
+    private String socialSecurityNumber;
 }

@@ -1,41 +1,49 @@
 package com.ifmis.payroll.entity.master;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
-//@Entity
-//@Table(name = "LK_bank_master")
-//@Getter
-//@Setter
-//@Builder
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "lk_bank_master")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LKBankMaster {
 
-    // bank Name
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    // Abbrev
+    @Column(name = "bank_name", nullable = false)
+    private String bankName;
 
-    // Bank Key (Named Range Key)
+    @Column(name = "abbrev")
+    private String abbrev;
 
-    // Category
+    @Column(name = "bank_key", unique = true)
+    private String bankKey;
 
-    // Branch Name
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "bank_category_id", nullable = false)
+    private BankCategory bankCategory;
 
-    // Branch Code
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
+    private List<BankBranch> branches;
 
-    // City
+    @Column(name = "telephone")
+    private String telephone;
 
-    // SWIFT / BIC Code
+    @Column(name = "ownership")
+    private String ownership;
 
-    // Branch Address
+    @Column(name = "established_year")
+    private Integer establishedYear;
 
-    // Bank HQ Address
-
-    // Telephone
-
-    // Ownership
-
-    // Established
-
-    // Website
+    @Column(name = "website", length = 200)
+    private String website;
 }

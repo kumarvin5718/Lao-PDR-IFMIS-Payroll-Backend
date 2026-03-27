@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "LK_grade_derivation")
+@Table(name = "lk_grade_derivation_master")
 @Getter
 @Setter
 @Builder
-public class LKGradeDerivation {
+public class LKGradeDerivationMaster {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

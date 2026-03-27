@@ -3,12 +3,19 @@ package com.ifmis.payroll.entity.master;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
-@Table(name = "LK_organization_master")
+@Table(name = "lk_organization_master")
 @Getter
 @Setter
 @Builder
 public class LkOrgMaster {
+
+    @Id
+    @Column(name = "id", unique = true, nullable = false, updatable = false)
+    private UUID id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministry_id", nullable = false)
     private Ministry ministry;
