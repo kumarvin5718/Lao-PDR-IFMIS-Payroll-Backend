@@ -74,4 +74,7 @@ public class EmployeePersonalInformation{
 
     @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private EmployeeResidentialAddress employeeResidentialAddress;
+
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private EmployeeBankDetail employeeBankDetail;
 }
