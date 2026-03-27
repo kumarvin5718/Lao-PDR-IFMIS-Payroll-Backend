@@ -19,7 +19,6 @@ public class LKPIT {
     // Rate
 
     // Description
-
     // Cumulative tax at lower bound
 
     // Calculation Formula

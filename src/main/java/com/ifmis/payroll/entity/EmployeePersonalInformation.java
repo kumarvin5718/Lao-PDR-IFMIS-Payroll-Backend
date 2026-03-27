@@ -14,9 +14,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmployeePersonalInformation extends AuditableEntity{
+public class EmployeePersonalInformation{
 
-    // Employee Code: alpha numeric, ex: LAO00001 12 char
+    // Employee Code: alphanumeric, ex: LAO00001 12 char
     @Id
     @Column(name = "employee_code", nullable = false, unique = true)
     private String employeeCode;
@@ -55,11 +55,23 @@ public class EmployeePersonalInformation extends AuditableEntity{
     private LocalDate dateOfJoining;
 
     // Year Of Service: Calculated from Today Date - Date Of Joining (In years)
-    @Column(name = "year_of_service", nullable = false, length = 3)
+    @Column(name = "year_of_service", nullable = false)
     private Integer yearOfService;
 
     // Date Of Retirement: Calculated from DOB + 60 years
     @Column(name = "date_of_retirement", nullable = false)
     private LocalDate dateOfRetirement;
 
+
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private EmployeeEmploymentAndGrade employeeEmploymentAndGrade;
+
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private EmployeeIdentityCards employeeIdentityCards;
+
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private EmployeeOrganisation employeeOrganisation;
+
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private EmployeeResidentialAddress employeeResidentialAddress;
 }
