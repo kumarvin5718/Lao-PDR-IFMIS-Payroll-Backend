@@ -3,6 +3,8 @@ package com.ifmis.payroll.entity.master;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "lk_grade_derivation_master")
 @Getter
@@ -11,8 +13,8 @@ import lombok.*;
 public class LKGradeDerivationMaster {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     // Education Level
     @ManyToOne(fetch = FetchType.LAZY)
