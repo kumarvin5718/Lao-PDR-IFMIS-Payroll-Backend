@@ -1,0 +1,4 @@
+-- ============================================================
+-- IFMS Payroll — indexes (Section 11.4)
+-- Placeholder: employee, payroll, archive, audit indexes.
+-- ============================================================

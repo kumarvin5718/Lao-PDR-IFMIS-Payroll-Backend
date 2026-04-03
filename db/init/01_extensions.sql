@@ -1,0 +1,4 @@
+-- ============================================================
+-- IFMS Payroll — PostgreSQL extensions (Section 15.6)
+-- Placeholder: to be filled with CREATE EXTENSION statements.
+-- ============================================================

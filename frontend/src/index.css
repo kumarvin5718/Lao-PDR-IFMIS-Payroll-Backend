@@ -1,0 +1,33 @@
+/* Self-hosted (air-gap); Noto fonts — Apache 2.0 */
+@font-face {
+  font-family: "Noto Serif Lao";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/NotoSerifLao.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Noto Serif Lao";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/NotoSerifLao.woff2") format("woff2");
+}
+
+:root {
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+body[lang="lo"],
+body[lang="lo"] .ant-table,
+body[lang="lo"] .ant-form-item-label,
+body[lang="lo"] .ant-btn {
+  font-family: "Noto Serif Lao", "Noto Sans Lao", serif;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
