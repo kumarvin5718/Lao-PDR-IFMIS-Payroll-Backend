@@ -75,11 +75,11 @@ public class EmployeeRequestDto {
 
     // ================= ORGANIZATION =================
 
-    @NotNull(message = "Ministry ID is required")
-    private UUID ministryId;
+    @NotBlank(message = "Ministry ID is required")
+    private String ministryId;
 
-    @NotNull(message = "Department ID is required")
-    private UUID departmentId;
+    @NotBlank(message = "Department ID is required")
+    private String departmentId;
 
     @NotBlank(message = "Division is required")
     private String division;
