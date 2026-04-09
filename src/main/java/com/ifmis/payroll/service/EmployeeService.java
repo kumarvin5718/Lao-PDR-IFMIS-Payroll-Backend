@@ -91,7 +91,7 @@ public class EmployeeService {
         // ================= BUILD ENTITY =================
 
         Employee employee = Employee.builder()
-                .employeeCode(generateEmployeeCode())
+                .employeeCode(request.getEmployeeCode())
 
                 // Personal
                 .title(request.getTitle())
@@ -159,9 +159,4 @@ public class EmployeeService {
         );
     }
 
-    // Need attention Here
-    private String generateEmployeeCode() {
-        int random = (int) (Math.random() * 100000);
-        return String.format("LAO%05d", random);
-    }
 }

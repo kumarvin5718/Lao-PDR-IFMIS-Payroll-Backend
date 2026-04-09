@@ -15,6 +15,11 @@ import java.util.UUID;
 @Builder
 public class EmployeeRequestDto {
 
+    // ================= PRIMARY KEY =================
+
+    @NotBlank(message = "Employee code is required")
+    private String employeeCode;
+
     // ================= PERSONAL DETAILS =================
 
     @NotNull(message = "Title is required")
