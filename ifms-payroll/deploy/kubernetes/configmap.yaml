@@ -1,0 +1,14 @@
+# Non-secret app settings. Tune per environment.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ifms-payroll-config
+  labels:
+    app.kubernetes.io/name: ifms-payroll
+data:
+  COOKIE_SECURE: "true"
+  APP_DEBUG: "false"
+  # Comma-separated; set to your public UI origin(s)
+  CORS_ORIGINS: "https://payroll.example.gov.la"
+  # Internal Superset URL if you deploy it in-cluster; else adjust
+  SUPERSET_URL: "http://superset:8088"

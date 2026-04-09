@@ -1,0 +1,6 @@
+-- ============================================================
+-- IFMS Payroll — views (Section 11.1)
+-- payroll_all is NOT created here: tables come from SQLAlchemy create_all first.
+-- After create_dev_tables.py, apply: db/patches/002_payroll_all_view.sql
+-- (See also docs/superset_dashboard_sql.md.)
+-- ============================================================

@@ -1,0 +1,190 @@
+# Project name appears in Docker Desktop as stack prefix (e.g. ifms-payroll-nginx-1).
+name: ifms-payroll
+
+services:
+
+  nginx:
+    image: nginx:1.25-alpine
+    # HTTPS only on host 18443 — avoids binding host :80/:443 and avoids redirect bugs
+    # when HTTP would map to a different host port than HTTPS.
+    # Open: https://localhost:18443
+    ports:
+      - "18443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - frontend_build:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+      - superset
+    networks:
+      - payroll_net
+    restart: always
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # Host dev: Vite (frontend) proxies /api → http://localhost:8000
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://payroll_app:${DB_APP_PASS}@postgres:5432/payroll_db"
+      # Alembic upgrades tables created by db/init as postgres; payroll_app cannot CREATE INDEX on them.
+      ALEMBIC_DATABASE_URL: "postgresql+psycopg2://postgres:${DB_ROOT_PASS}@postgres:5432/payroll_db"
+      VALKEY_URL: "redis://:${VALKEY_PASS}@valkey:6379/0"
+      CELERY_BROKER_URL: "redis://:${VALKEY_PASS}@valkey:6379/1"
+      SECRET_KEY: "${JWT_SECRET_KEY}"
+      SUPERSET_URL: "http://superset:8088"
+      SUPERSET_ADMIN_USER: "${SUPERSET_ADMIN_USER}"
+      SUPERSET_ADMIN_PASS: "${SUPERSET_ADMIN_PASS}"
+      UPLOAD_DIR: "/app/uploads"
+      REPORTS_DIR: "/app/reports"
+      # HTTPS via nginx → default true. For local HTTP API debugging, set COOKIE_SECURE=false in .env
+      COOKIE_SECURE: "${COOKIE_SECURE:-true}"
+      # Set APP_DEBUG=true temporarily to include exception text in JSON on 500 (never in production).
+      APP_DEBUG: "${APP_DEBUG:-false}"
+    volumes:
+      - uploads:/app/uploads
+      - reports:/app/reports
+    depends_on:
+      - postgres
+      - valkey
+    networks:
+      - payroll_net
+    restart: always
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://payroll_app:${DB_APP_PASS}@postgres:5432/payroll_db"
+      VALKEY_URL: "redis://:${VALKEY_PASS}@valkey:6379/0"
+      CELERY_BROKER_URL: "redis://:${VALKEY_PASS}@valkey:6379/1"
+      SECRET_KEY: "${JWT_SECRET_KEY}"
+      SUPERSET_URL: "http://superset:8088"
+      SUPERSET_ADMIN_USER: "${SUPERSET_ADMIN_USER}"
+      SUPERSET_ADMIN_PASS: "${SUPERSET_ADMIN_PASS}"
+      UPLOAD_DIR: "/app/uploads"
+      REPORTS_DIR: "/app/reports"
+    volumes:
+      - uploads:/app/uploads
+      - reports:/app/reports
+    depends_on:
+      - postgres
+      - valkey
+    networks:
+      - payroll_net
+    restart: always
+
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app beat --loglevel=info --scheduler=celery.beat:PersistentScheduler
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://payroll_app:${DB_APP_PASS}@postgres:5432/payroll_db"
+      VALKEY_URL: "redis://:${VALKEY_PASS}@valkey:6379/0"
+      CELERY_BROKER_URL: "redis://:${VALKEY_PASS}@valkey:6379/1"
+      SECRET_KEY: "${JWT_SECRET_KEY}"
+      SUPERSET_URL: "http://superset:8088"
+      SUPERSET_ADMIN_USER: "${SUPERSET_ADMIN_USER}"
+      SUPERSET_ADMIN_PASS: "${SUPERSET_ADMIN_PASS}"
+      UPLOAD_DIR: "/app/uploads"
+      REPORTS_DIR: "/app/reports"
+    depends_on:
+      - postgres
+      - valkey
+    networks:
+      - payroll_net
+    restart: always
+
+  flower:
+    image: mher/flower:2.0.1    # MIT licence
+    command: celery --broker=redis://:${VALKEY_PASS}@valkey:6379/1 flower --port=5555
+    environment:
+      FLOWER_BASIC_AUTH: "admin:${FLOWER_PASS}"
+    depends_on:
+      - valkey
+    networks:
+      - payroll_net
+    restart: always
+    # NOT exposed externally — Nginx proxies /flower/ only for ROLE_ADMIN
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: payroll_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${DB_ROOT_PASS}"
+      # Used by db/init/02_payroll_app_role.sh to create the payroll_app login role
+      DB_APP_PASS: "${DB_APP_PASS}"
+      # Used by db/init/025_superset_db_user.sh to create the Superset login role
+      SUPERSET_DB_USER: "${SUPERSET_DB_USER:-superset_user}"
+      SUPERSET_DB_PASS: "${SUPERSET_DB_PASS}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro   # SQL init scripts
+    networks:
+      - payroll_net
+    restart: always
+    shm_size: 256mb
+
+  valkey:
+    image: valkey/valkey:7.2-alpine
+    command: valkey-server --save 60 1 --loglevel warning --requirepass "${VALKEY_PASS}"
+    volumes:
+      - valkey_data:/data
+    networks:
+      - payroll_net
+    restart: always
+
+  superset:
+    image: apache/superset:4.0.0
+    environment:
+      SUPERSET_SECRET_KEY: "${SUPERSET_SECRET_KEY}"
+      SUPERSET_DB_USER: "${SUPERSET_DB_USER:-superset_user}"
+      SUPERSET_DB_PASS: "${SUPERSET_DB_PASS}"
+      SUPERSET_DATABASE_DB: "${SUPERSET_DATABASE_DB:-superset_db}"
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_DB: "${SUPERSET_DATABASE_DB:-superset_db}"
+      DATABASE_USER: "${SUPERSET_DB_USER:-superset_user}"
+      DATABASE_PASSWORD: "${SUPERSET_DB_PASS}"
+    volumes:
+      - superset_home:/app/superset_home
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    depends_on:
+      - postgres
+    networks:
+      - payroll_net
+    restart: always
+
+  frontend_builder:
+    # Build-time only; not a runtime service
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      # Keep node_modules off the macOS bind mount — avoids ENOTEMPTY / duplicate dirs on npm ci.
+      - frontend_node_modules:/app/node_modules
+      - frontend_build:/app/dist
+    command: sh -c "npm ci && npm run build"
+    profiles:
+      - build
+
+volumes:
+  postgres_data:
+  valkey_data:
+  superset_home:
+  uploads:
+  reports:
+  frontend_node_modules:
+  frontend_build:
+
+networks:
+  payroll_net:
+    driver: bridge
