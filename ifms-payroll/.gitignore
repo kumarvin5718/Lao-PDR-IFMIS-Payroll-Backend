@@ -4,23 +4,17 @@ __pycache__/
 *$py.class
 *.so
 .Python
-venv/
-.venv/
 backend/.venv/
 backend/.venv312/
-env/
-.env
 
 # Node
 node_modules/
 dist/
-.env.local
 frontend/vite.config.js
 frontend/vite.config.d.ts
 *.tsbuildinfo
 
 # Docker / secrets
-.env
 
 # Uploads and generated reports (local)
 uploads/
