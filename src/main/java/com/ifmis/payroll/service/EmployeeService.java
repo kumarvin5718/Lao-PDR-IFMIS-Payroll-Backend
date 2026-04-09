@@ -2,6 +2,7 @@ package com.ifmis.payroll.service;
 
 import com.ifmis.payroll.dto.EmployeeAddressDto;
 import com.ifmis.payroll.dto.EmployeeRequestDto;
+import com.ifmis.payroll.dto.EmployeeResponseDto;
 import com.ifmis.payroll.entity.Employee;
 import com.ifmis.payroll.entity.master.*;
 import com.ifmis.payroll.exception.DuplicateResourceException;
@@ -10,6 +11,8 @@ import com.ifmis.payroll.pojo.EmployeeAddress;
 import com.ifmis.payroll.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,9 +81,17 @@ public class EmployeeService {
 
         // ================= LOCATION MASTER FETCH =================
 
+        String countryKey = request.getCountryKey();
+
+
+        if ("Lao PDR".equalsIgnoreCase(countryKey)) {
+            countryKey = "LAO";
+        }else{
+            countryKey = "FOR";
+        }
         LKLocationMaster location = locationRepo
                 .findByCountry_CountryKeyAndProvince_ProvinceKeyAndDistrict_DistrictKey(
-                        request.getCountryKey(),
+                        countryKey,
                         request.getProvinceKey(),
                         request.getDistrictKey()
                 )
@@ -142,8 +153,14 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+//    public Page<Employee> getAllEmployees(Pageable pageable) {
+//        Page<Employee> employees = employeeRepository.findAll(pageable);
+//        return employees;
+//    }
+
+    public Page<EmployeeResponseDto> getAllEmployees(Pageable pageable) {
+        return employeeRepository.findAll(pageable)
+                .map(this::convertToDto);
     }
 
     // ================= HELPER METHODS =================
@@ -159,6 +176,140 @@ public class EmployeeService {
                 dto.getPinCode(),
                 dto.getCountry()
         );
+    }
+
+    private EmployeeResponseDto convertToDto(Employee e) {
+        return EmployeeResponseDto.builder()
+                // PRIMARY
+                .employeeCode(e.getEmployeeCode())
+
+                // PERSONAL
+                .title(e.getTitle())
+                .firstName(e.getFirstName())
+                .lastName(e.getLastName())
+                .gender(e.getGender())
+                .dateOfBirth(e.getDateOfBirth())
+                .email(e.getEmail())
+                .mobileNumber(e.getMobileNumber())
+
+                // SERVICE DATES
+                .dateOfJoining(e.getDateOfJoining())
+                .yearsOfService(e.getYearOfService())
+                .dateOfRetirement(e.getDateOfRetirement())
+
+                // EMPLOYMENT
+                .employmentType(e.getEmploymentType())
+                .position(e.getPosition())
+
+                .educationLevelId(
+                        e.getEducationLevel() != null ? e.getEducationLevel().getId() : null
+                )
+                .educationLevelName(
+                        e.getEducationLevel() != null ? e.getEducationLevel().getName() : null
+                )
+
+                .priorExperience(e.getPriorExperience())
+
+                .grade(
+                        e.getGradeAndStep() != null ? Integer.parseInt(e.getGradeAndStep().getDerivedGrade()) : null
+                )
+                .step(
+                        e.getGradeAndStep() != null ? e.getGradeAndStep().getDerivedStep() : null
+                )
+
+                // IDENTITY
+                .civilServiceCardId(e.getCivilServiceCardId())
+                .socialSecurityNumber(e.getSocialSecurityNumber())
+
+                // ORGANIZATION
+                .ministryId(
+                        e.getMinistry() != null ? e.getMinistry().getMinistryKey().toString() : null
+                )
+                .ministryName(
+                        e.getMinistry() != null ? e.getMinistry().getName() : null
+                )
+
+                .departmentId(
+                        e.getDepartment() != null ? e.getDepartment().getDepartmentKey().toString() : null
+                )
+                .departmentName(
+                        e.getDepartment() != null ? e.getDepartment().getName() : null
+                )
+
+                .division(e.getDivision())
+
+                // LOCATION
+                .countryKey(
+                        e.getLocation() != null ? e.getLocation().getCountry().getCountryKey() : null
+                )
+                .countryName(
+                        e.getLocation() != null ? e.getLocation().getCountry().getName() : null
+                )
+
+                .provinceKey(
+                        e.getLocation() != null ? e.getLocation().getProvince().getProvinceKey() : null
+                )
+                .provinceName(
+                        e.getLocation() != null ? e.getLocation().getProvince().getName() : null
+                )
+
+                .districtKey(
+                        e.getLocation() != null ? e.getLocation().getDistrict().getDistrictKey() : null
+                )
+                .districtName(
+                        e.getLocation() != null ? e.getLocation().getDistrict().getName() : null
+                )
+
+                .professionalCategory(e.getProfessionCategory())
+
+                .isRemoteArea(
+                        e.getLocation() != null ? e.getLocation().getIsRemote() : null
+                )
+                .isHazardousArea(
+                        e.getLocation() != null ? e.getLocation().getIsHazardous() : null
+                )
+                .isForeignPosting(
+                        e.getLocation() != null ? e.getLocation().getIsForeignPosting() : null
+                )
+
+                // ADDRESS
+                .address(
+                        e.getAddress() != null
+                                ? EmployeeAddressDto.builder()
+                                .street(e.getAddress().getStreet())
+                                .area(e.getAddress().getArea())
+                                .houseNo(e.getAddress().getHouseNo())
+                                .pinCode(e.getAddress().getPinCode())
+                                .provinceOfResidence(e.getAddress().getProvinceOfResidence())
+                                .build()
+                                : null
+                )
+
+                // BANK
+                .branchId(
+                        e.getBranch() != null ? e.getBranch().getId() : null
+                )
+                .bankName(
+                        e.getBranch() != null ? e.getBranch().getBank().getBankName() : null
+                )
+                .branchName(
+                        e.getBranch() != null ? e.getBranch().getBranchName() : null
+                )
+                .branchCode(
+                        e.getBranch() != null ? e.getBranch().getBranchCode() : null
+                )
+                .swiftCode(
+                        e.getBranch() != null ? e.getBranch().getSwiftBICCode() : null
+                )
+
+                .accountNumber(e.getAccountNumber())
+
+                // FLAGS
+                .hasSpouse(e.getHasSpouse())
+                .noOfEligibleChildren(e.getNoOfEligibleChildren())
+                .positionLevel(e.getPositionLevel())
+
+                .build();
     }
 
 }

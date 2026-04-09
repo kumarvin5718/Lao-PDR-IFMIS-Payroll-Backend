@@ -5,14 +5,18 @@ import com.ifmis.payroll.enums.Gender;
 import com.ifmis.payroll.enums.Title;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeRequestDto {
 
     // ================= PRIMARY KEY =================
@@ -45,7 +49,6 @@ public class EmployeeRequestDto {
     private String email;
 
     @NotBlank(message = "Mobile number is required")
-    @Pattern(regexp = "^[0-9]{8,15}$", message = "Mobile number must be 8-15 digits")
     private String mobileNumber;
 
     // ================= SERVICE DATES =================
@@ -71,11 +74,9 @@ public class EmployeeRequestDto {
     // ================= IDENTITY =================
 
     @NotBlank(message = "Civil Service Card ID is required")
-    @Pattern(regexp = "^[0-9]{16}$", message = "Must be exactly 16 digits")
     private String civilServiceCardId;
 
     @NotBlank(message = "Social Security Number is required")
-    @Size(max = 16, message = "Max length is 16")
     private String socialSecurityNumber;
 
     // ================= ORGANIZATION =================

@@ -17,7 +17,12 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        type:
+          json_format_mapper: jackson
         format_sql: false
         jdbc.batch_size: 50
         order_inserts: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+
+
