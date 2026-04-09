@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
@@ -123,7 +125,6 @@ public class EmployeeService {
 
                 // Service Location
                 .location(location)
-//                .professionCategory()
 
                 // JSONB
                 .address(address)
@@ -135,13 +136,14 @@ public class EmployeeService {
                 // Flags
                 .hasSpouse(request.getHasSpouse())
                 .noOfEligibleChildren(request.getNoOfEligibleChildren())
-//                .positionLevel())
-//                .isNAMember()
-//                .fieldAllowanceType()
 
                 .build();
 
         return employeeRepository.save(employee);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
     }
 
     // ================= HELPER METHODS =================

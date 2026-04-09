@@ -192,14 +192,6 @@ public class Employee {
     // 31: Position Level
     private String positionLevel;
 
-    // 32: National Assembly Member
-    private Boolean isNAMember;
-
-    // 33: Field Allowance Type
-    private String fieldAllowanceType;
-
-    // ================= PAYROLL FLAGS (END) =================
-
 
 
     @PrePersist

@@ -1,5 +1,6 @@
 package com.ifmis.payroll.controller;
 
+import com.ifmis.payroll.dto.BankDto;
 import com.ifmis.payroll.entity.master.*;
 import com.ifmis.payroll.repository.*;
 import com.ifmis.payroll.enums.EmploymentType;
@@ -62,8 +63,13 @@ public class MasterController {
     // ================= BANKING =================
 
     @GetMapping("/banks")
-    public ResponseEntity<List<LKBankMaster>> getAllBanks() {
-        List<LKBankMaster> banks = lkBankMasterRepository.findAll();
+    public ResponseEntity<List<BankDto>> getAllBanks() {
+        List<BankDto> banks = lkBankMasterRepository.findAll().stream()
+                .map(bank -> BankDto.builder()
+                        .id(bank.getId())
+                        .bankName(bank.getBankName())
+                        .build())
+                .toList();
         return ResponseEntity.ok(banks);
     }
 
