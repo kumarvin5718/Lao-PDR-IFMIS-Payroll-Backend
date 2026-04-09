@@ -1,0 +1,10 @@
+# Root workspace
+.DS_Store
+
+# Local bundle archives (not source)
+*.zip
+**/.DS_Store
+.cursor/
+
+# Microsoft Office lock files
+~$*

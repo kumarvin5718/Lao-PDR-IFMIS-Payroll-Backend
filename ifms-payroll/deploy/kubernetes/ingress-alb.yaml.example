@@ -1,0 +1,30 @@
+# AWS Load Balancer Controller — ALB Ingress (example).
+# Prerequisites: AWS LB Controller installed; ACM certificate in same region; subnets tagged for ALB.
+# Copy to ingress-alb.yaml, replace placeholders, then: kubectl apply -f ingress-alb.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ifms-payroll-api
+  namespace: ifms-payroll
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    # Replace with your public subnet IDs (comma-separated)
+    alb.ingress.kubernetes.io/subnets: subnet-aaaaaaaa,subnet-bbbbbbbb
+    # HTTPS — certificate in ACM (same region as ALB)
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:REGION:ACCOUNT:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  rules:
+    - host: payroll.example.gov.la
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ifms-payroll-api
+                port:
+                  number: 8000
