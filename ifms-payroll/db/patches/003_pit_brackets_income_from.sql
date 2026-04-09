@@ -1,0 +1,2 @@
+-- Superseded: MoF 4904/MOF Jan 2026 PIT brackets are seeded in db/init/08_seed_data.sql
+-- and applied via operational UPDATEs. Do not run legacy threshold UPDATEs here.

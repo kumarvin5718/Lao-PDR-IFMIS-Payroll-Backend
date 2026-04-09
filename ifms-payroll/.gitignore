@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+backend/.venv/
+backend/.venv312/
+env/
+.env
+
+# Node
+node_modules/
+dist/
+.env.local
+frontend/vite.config.js
+frontend/vite.config.d.ts
+*.tsbuildinfo
+
+# Docker / secrets
+.env
+
+# Uploads and generated reports (local)
+uploads/
+reports/
+
+# Alembic: keep versions dir; ignore migration scripts except package marker
+backend/alembic/versions/*.py
+!backend/alembic/versions/__init__.py
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store

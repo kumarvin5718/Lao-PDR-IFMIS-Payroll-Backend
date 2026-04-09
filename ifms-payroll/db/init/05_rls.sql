@@ -1,0 +1,4 @@
+-- ============================================================
+-- IFMS Payroll — Row Level Security policies
+-- Placeholder: SET LOCAL app.ifms_role / app.current_ministry policies (avoid "current_role"; reserved in PostgreSQL).
+-- ============================================================
