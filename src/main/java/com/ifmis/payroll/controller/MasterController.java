@@ -1,5 +1,6 @@
 package com.ifmis.payroll.controller;
 
+import com.ifmis.payroll.dto.BankBranchDto;
 import com.ifmis.payroll.dto.BankDto;
 import com.ifmis.payroll.entity.master.*;
 import com.ifmis.payroll.repository.*;
@@ -82,8 +83,15 @@ public class MasterController {
     }
 
     @GetMapping("/banks/branches")
-    public ResponseEntity<List<BankBranch>> getAllBankBranches() {
-        List<BankBranch> branches = bankBranchRepository.findAll();
+    public ResponseEntity<List<BankBranchDto>> getAllBankBranches() {
+        List<BankBranchDto> branches = bankBranchRepository.findAll().stream()
+                .map(branch -> BankBranchDto.builder()
+                        .id(branch.getId())
+                        .branchName(branch.getBranchName())
+                        .branchCode(branch.getBranchCode())
+                        .bankId(branch.getBank().getId())
+                        .build())
+                .toList();
         return ResponseEntity.ok(branches);
     }
 
