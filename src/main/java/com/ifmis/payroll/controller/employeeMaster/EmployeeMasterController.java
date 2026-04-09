@@ -31,4 +31,22 @@ public class EmployeeMasterController {
         Page<EmployeeResponseDto> employees = employeeService.getAllEmployees(pageable);
         return ResponseEntity.ok(employees);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchEmployees(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String employeeCode,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String mobileNumber,
+            Pageable pageable
+    ) {
+        Page<EmployeeResponseDto> result =
+                employeeService.searchEmployees(
+                        keyword, employeeCode, firstName, lastName, email, mobileNumber, pageable
+                );
+
+        return ResponseEntity.ok(result);
+    }
 }

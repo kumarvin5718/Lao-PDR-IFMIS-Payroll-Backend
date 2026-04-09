@@ -163,6 +163,20 @@ public class EmployeeService {
                 .map(this::convertToDto);
     }
 
+    public Page<EmployeeResponseDto> searchEmployees(
+            String keyword,
+            String employeeCode,
+            String firstName,
+            String lastName,
+            String email,
+            String mobileNumber,
+            Pageable pageable
+    ) {
+        return employeeRepository.searchEmployees(
+                        keyword, employeeCode, firstName, lastName, email, mobileNumber, pageable
+                )
+                .map(this::convertToDto);
+    }
     // ================= HELPER METHODS =================
 
     private EmployeeAddress mapAddress(EmployeeAddressDto dto) {
