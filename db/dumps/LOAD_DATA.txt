@@ -1,0 +1,70 @@
+================================================================================
+IFMS Payroll — loading exported SQL data (export_payroll_data.sh / load_payroll_data.sh)
+================================================================================
+
+WHAT GETS EXPORTED
+------------------
+Lookups: lk_pit_brackets, lk_allowance_rates, lk_grade_step, lk_grade_derivation,
+         lk_ministry_master, lk_location_master, lk_org_master, lk_bank_master
+Transactional: employee, payroll_monthly, payroll_monthly_archive,
+               upload_session, upload_session_row, system_job_log
+Optional (INCLUDE_USERS=1, default): app_user, manager_scope, dept_officer_scope
+
+Not exported: audit_log, celery_taskmeta, alembic_version (keep prod as-is).
+
+WORKFLOW
+--------
+1. On your desktop (data you want):
+     cd ifms-payroll
+     ./scripts/export_payroll_data.sh
+2. Copy db/dumps/payroll_data_export_*.sql to the server (secure channel; file may contain PII).
+3. On the server:
+     cd ifms-payroll
+     ./scripts/load_payroll_data.sh db/dumps/payroll_data_export_....sql
+
+DO NOT run the .sql file as a shell script (e.g. ./payroll_data_export_*.sql). That passes SQL to
+bash and causes errors like "command not found" for -- and SET. Always use load_payroll_data.sh
+or: docker compose exec -T postgres psql ... < file.sql
+
+ERROR: boolean vs integer on app_user (force_password_change, etc.)
+-------------------------------------------------------------------
+**A) Schema on prod:** run 007 (stdin from host — not psql -f):
+
+  docker compose exec -T postgres psql -U postgres -d payroll_db -v ON_ERROR_STOP=1 \
+    < db/patches/007_app_user_schema_alignment.sql
+
+**B) Dump missing registration_status in VALUES:** only for INSERTs that **list**
+`registration_status` in the column list but have misaligned values. Patch then load:
+
+  python3 scripts/patch_payroll_dump_app_user.py ./scripts/payroll_data_export_....sql -o /tmp/fixed.sql
+  ./scripts/load_payroll_data.sh /tmp/fixed.sql
+
+If you see **more expressions than target columns**, a previous patch run added `'ACTIVE'`
+where the INSERT had only four columns — restore the **original** export from the laptop
+(or the `.bak` from **before** patching), pull the latest `patch_payroll_dump_app_user.py`,
+and run again.
+
+If app_user still fails (e.g. role CHECK), re-export with INCLUDE_USERS=0 and load
+lookups/employees/payroll only, then fix accounts in the UI.
+
+DUPLICATE KEYS / MERGING
+------------------------
+- If production already ran bootstrap, lk_* and app_user rows may already exist.
+  INSERTs can fail with unique violations. Options:
+  a) Load into an empty database (only schema from first_deploy), then load SQL; or
+  b) Edit the SQL to remove conflicting blocks; or
+  c) TRUNCATE relevant tables in dependency order (risky — back up first); or
+  d) Export with INCLUDE_USERS=0 if prod accounts must stay, then fix
+     employee.uploaded_by_user_id / manager_scope manually.
+
+- app_user contains password hashes. Treat dumps as secrets. Do not commit *.sql to git.
+
+MANAGER / DEPT OFFICER SCREENS
+-------------------------------
+manager_scope and dept_officer_scope reference app_user.user_id. Production must have
+the same user rows (same UUIDs) or those INSERTs fail. Usually export WITH users or
+recreate assignments in the UI after aligning accounts.
+
+NO APPLICATION CODE CHANGES
+-----------------------------
+These scripts only run pg_dump / psql. The API image is not modified.

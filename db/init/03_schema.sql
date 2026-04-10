@@ -1,0 +1,13 @@
+-- ============================================================
+-- IFMS Payroll — CREATE TABLE (Section 11)
+-- Placeholder: full schema from requirements Section 11.1–11.3.
+-- ============================================================
+--
+-- app_login_history
+--   References app_user; cannot be created here because init order runs this file
+--   before 09_app_user.sql. Executable DDL: see 09_app_user.sql (after CREATE app_user).
+--   Alembic: backend/alembic/versions/0002_add_app_login_history.py
+-- ============================================================
+--
+-- lk_grade_step (created by SQLAlchemy): grade CHECK is BETWEEN 1 AND 6 per MoF
+-- 4904/MOF / LaoPayrollToolkit_v5; step upper bound 15 unchanged.

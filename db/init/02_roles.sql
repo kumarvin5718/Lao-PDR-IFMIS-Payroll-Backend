@@ -1,0 +1,4 @@
+-- ============================================================
+-- IFMS Payroll — database roles (Section 15.6)
+-- Placeholder: payroll_app_role, superset_reader, grants.
+-- ============================================================
